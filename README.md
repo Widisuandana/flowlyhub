@@ -21,7 +21,7 @@ FlowlyHub adalah aplikasi kasir berbasis web yang membantu UMKM warung makan dal
 | Nama                       | Universitas                    | Divisi           |
 |----------------------------|--------------------------------|------------------|
 | Firda Humaira              | Universitas Gunadarma          | Frontend         |
-| Dewi Safira Permata Sari   | Universitas Gunadarma          | Backend          |
+| Dewi Safira Permata Sari   | Universitas Gunadarma          | FrontEnd        |
 | Erisa Putri Nabila         | Universitas Jenderal Soedirman | Machine Learning |
 | Adam Duta Mursadi          | Universitas Gunadarma          | Backend          |
 | Kadek Widi Suandana        | Universitas Pendidikan Ganesha | Frontend         |
