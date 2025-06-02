@@ -19,6 +19,12 @@ git clone https://github.com/Widisuandana/flowlyhub.git
 cd flowlyhub
 git checkout backend/dev
 ```
+### 2. Buat file .env pada root projet dengan isi
+```bash
+DATABASE_URL=postgres://user:password@localhost:5432/flowlyhub?sslmode=disable
+JWT_SECRET=your_jwt_secret
+PORT=8080
+```
 ### 3. Jalankan PostgreSQL dengan Docker Compose
 
 ```bash
