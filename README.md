@@ -19,17 +19,6 @@ git clone https://github.com/Widisuandana/flowlyhub.git
 cd flowlyhub
 git checkout backend/dev
 ```
-
-### 2. Konfigurasi Environment
-
-Pastikan file `config/config.yaml` tersedia dengan isi seperti berikut:
-
-```yaml
-port: "8080"
-database_url: "postgres://postgres:postgres@localhost:5432/flowlyhub?sslmode=disable"
-jwt_secret: "your_jwt_secret"
-```
-
 ### 3. Jalankan PostgreSQL dengan Docker Compose
 
 ```bash
