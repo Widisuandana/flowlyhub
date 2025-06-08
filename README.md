@@ -1,95 +1,36 @@
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
 # 🍽️ FlowlyHub
->>>>>>> 9ff5183d3dc3cf422f88b1d5d6e3566c2b415e2f
 
-# FlowlyHub.
+**Smart Ordering and Financial Management for Local Culinary Businesses**
 
-## ⚙️ Requirements
-
-Pastikan Anda sudah menginstal:
-
-- [Go](https://golang.org/dl/) ≥ 1.20
-- [Docker](https://docs.docker.com/get-docker/)
-- [Docker Compose](https://docs.docker.com/compose/install/)
-- [sqlc](https://docs.sqlc.dev/en/stable/overview/install.html) (opsional, untuk generate ulang query dari `.sql`)
-
-## 🚀 Menjalankan Proyek
-
-### 1. Clone repository
-
-```bash
-git clone https://github.com/Widisuandana/flowlyhub.git
-cd flowlyhub
-git checkout backend/dev
-```
-### 2. Buat file .env pada root projet dengan isi
-```bash
-DATABASE_URL=postgres://user:password@localhost:5432/flowlyhub?sslmode=disable
-JWT_SECRET=your_jwt_secret
-PORT=8080
-```
-### 3. Jalankan PostgreSQL dengan Docker Compose
-
-```bash
-docker-compose up -d
-```
-
-### 4. Jalankan SQLC (opsional)
-
-```bash
-sqlc generate
-```
-
-### 5. Jalankan Server
-
-```bash
-go run cmd/api/main.go
-```
-
-Server akan berjalan di `http://localhost:8080` (sesuai konfigurasi `port`).
+> Solusi kasir digital terintegrasi Machine Learning untuk UMKM kuliner di Indonesia.
 
 ---
 
-## 📡 API Endpoint
+## 📌 Deskripsi Singkat
 
-| Method | Endpoint              | Akses         | Deskripsi                        |
-|--------|-----------------------|---------------|----------------------------------|
-| POST   | `/api/register`       | Publik        | Registrasi user baru             |
-| POST   | `/api/login`          | Publik        | Login dan mendapatkan token JWT  |
-| PUT    | `/api/users/{id}`     | Owner         | Update data user berdasarkan ID  |
-| DELETE | `/api/users/{id}`     | Owner         | Hapus user berdasarkan ID        |
-| GET    | `/api/users`          | Owner         | Ambil semua data user            |
-| GET    | `/api/protected`      | Owner/Staff   | Endpoint contoh yang dilindungi  |
-
-🔐 Untuk endpoint yang dilindungi, sertakan header berikut:
-
-```
-Authorization: Bearer <JWT_TOKEN_ANDA>
-```
+FlowlyHub adalah aplikasi kasir berbasis web yang membantu UMKM warung makan dalam:
+- Mencatat transaksi harian
+- Mengelola pemasukan dan pengeluaran
+- Melakukan analisis performa penjualan
+- Mendapatkan rekomendasi produk dan stok berbasis Machine Learning
 
 ---
 
-## 📁 Struktur Proyek
+## 🧑‍🤝‍🧑 Tim Pengembang
 
-```
-.
-├── cmd/api              # Entry point server
-├── config               # Konfigurasi aplikasi
-├── docker               # Dockerfile dan konfigurasi terkait
-├── internal             # Logika aplikasi (auth, handler, db)
-├── docker-compose.yml   # Orkestrasi database PostgreSQL
-├── sqlc.yml             # Konfigurasi SQLC
-```
+| Nama                       | Universitas                    | Divisi           |
+|----------------------------|--------------------------------|------------------|
+| Firda Humaira              | Universitas Gunadarma          | Machine Learning |
+| Dewi Safira Permata Sari   | Universitas Gunadarma          | Machine Learning |
+| Erisa Putri Nabila         | Universitas Jenderal Soedirman | Machine Learning |
+| Adam Duta Mursadi          | Universitas Gunadarma          | Frontend         |
+| Kadek Widi Suandana        | Universitas Pendidikan Ganesha | Backend          |
+| Moh. Threewahyu Saifulloh  | Universitas Negeri Surabaya    | Frontend         |
 
 ---
 
-## 📝 Lisensi
+## 📂 Struktur Folder
 
-<<<<<<< HEAD
-MIT License © 2025 [Widisuandana](https://github.com/Widisuandana)
-=======
 ```bash
 flowlyhub/
 ├── front-end/          # React.js apps
@@ -190,91 +131,3 @@ git push origin main
 - Jangan langsung commit ke `main`!
 - Gunakan branch baru untuk setiap fitur atau bugfix
 - Selalu sync dengan `dev` sebelum mulai kerja
-=======
-
-# FlowlyHub.
-
-## ⚙️ Requirements
-
-Pastikan Anda sudah menginstal:
-
-- [Go](https://golang.org/dl/) ≥ 1.20
-- [Docker](https://docs.docker.com/get-docker/)
-- [Docker Compose](https://docs.docker.com/compose/install/)
-- [sqlc](https://docs.sqlc.dev/en/stable/overview/install.html) (opsional, untuk generate ulang query dari `.sql`)
-
-## 🚀 Menjalankan Proyek
-
-### 1. Clone repository
-
-```bash
-git clone https://github.com/Widisuandana/flowlyhub.git
-cd flowlyhub
-git checkout backend/dev
-```
-### 2. Buat file .env pada root projet dengan isi
-```bash
-DATABASE_URL=postgres://user:password@localhost:5432/flowlyhub?sslmode=disable
-JWT_SECRET=your_jwt_secret
-PORT=8080
-```
-### 3. Jalankan PostgreSQL dengan Docker Compose
-
-```bash
-docker-compose up -d
-```
-
-### 4. Jalankan SQLC (opsional)
-
-```bash
-sqlc generate
-```
-
-### 5. Jalankan Server
-
-```bash
-go run cmd/api/main.go
-```
-
-Server akan berjalan di `http://localhost:8080` (sesuai konfigurasi `port`).
-
----
-
-## 📡 API Endpoint
-
-| Method | Endpoint              | Akses         | Deskripsi                        |
-|--------|-----------------------|---------------|----------------------------------|
-| POST   | `/api/register`       | Publik        | Registrasi user baru             |
-| POST   | `/api/login`          | Publik        | Login dan mendapatkan token JWT  |
-| PUT    | `/api/users/{id}`     | Owner         | Update data user berdasarkan ID  |
-| DELETE | `/api/users/{id}`     | Owner         | Hapus user berdasarkan ID        |
-| GET    | `/api/users`          | Owner         | Ambil semua data user            |
-| GET    | `/api/protected`      | Owner/Staff   | Endpoint contoh yang dilindungi  |
-
-🔐 Untuk endpoint yang dilindungi, sertakan header berikut:
-
-```
-Authorization: Bearer <JWT_TOKEN_ANDA>
-```
-
----
-
-## 📁 Struktur Proyek
-
-```
-.
-├── cmd/api              # Entry point server
-├── config               # Konfigurasi aplikasi
-├── docker               # Dockerfile dan konfigurasi terkait
-├── internal             # Logika aplikasi (auth, handler, db)
-├── docker-compose.yml   # Orkestrasi database PostgreSQL
-├── sqlc.yml             # Konfigurasi SQLC
-```
-
----
-
-## 📝 Lisensi
-
-MIT License © 2025 [Widisuandana](https://github.com/Widisuandana)
->>>>>>> backend/dev
->>>>>>> 9ff5183d3dc3cf422f88b1d5d6e3566c2b415e2f
