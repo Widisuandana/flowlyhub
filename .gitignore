@@ -1,3 +1,87 @@
+<<<<<<< HEAD
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Output of go build
+/build/
+bin/
+=======
+<<<<<<< HEAD
+# ==================================
+# Global ignores
+.DS_Store
+node_modules/
+.env
+*.env
+>>>>>>> 9ff5183d3dc3cf422f88b1d5d6e3566c2b415e2f
+*.log
+
+# Vendor directory
+/vendor/
+
+# Go workspace file
+go.work
+go.work.sum
+
+# Go modules
+go.sum
+
+# Dependency directories
+/pkg/mod/
+
+# Environment variables
+.env
+.env.*
+
+# IDE/editor configs
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Docker files
+docker/postgres-data/
+docker/pgdata/
+docker-entrypoint-initdb.d/
+postgres_data/
+
+# SQLC generated code (if in a separate gen directory)
+sqlc.yaml
+generated.sql.go
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs and temp
+*.log
+*.tmp
+
+# Coverage
+coverage.out
+
+# GitHub Codespaces
+.devcontainer/
+
+<<<<<<< HEAD
+=======
+# ==================================
+# ML Python (ml/)
+ml/__pycache__/
+ml/.ipynb_checkpoints/
+ml/venv/
+ml/.env
+ml/model.pkl
+ml/*.h5
+ml/*.joblib
+ml/*.pkl
+=======
 # Binaries for programs and plugins
 *.exe
 *.exe~
@@ -59,3 +143,5 @@ coverage.out
 # GitHub Codespaces
 .devcontainer/
 
+>>>>>>> backend/dev
+>>>>>>> 9ff5183d3dc3cf422f88b1d5d6e3566c2b415e2f
