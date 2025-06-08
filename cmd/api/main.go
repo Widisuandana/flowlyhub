@@ -2,23 +2,48 @@ package main
 
 import (
 	"context"
+	"log"
+	"net/http"
+
 	"flowlyhub/config"
+	"flowlyhub/internal/absence"
 	"flowlyhub/internal/auth"
 	"flowlyhub/internal/db/sqlc"
 	"flowlyhub/internal/handler"
-	"log"
-	"net/http"
+	"flowlyhub/internal/weather"
 
 	"github.com/gorilla/mux"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 func main() {
+	// 1. Load Config
 	cfg, err := config.LoadConfig()
 	if err != nil {
-		log.Fatal("Failed to load config:", err)
+		log.Fatalf("FATAL: Gagal memuat konfigurasi: %v", err)
 	}
 
+	// =========================================================================
+	// VALIDASI KONFIGURASI KRITIS
+	// =========================================================================
+	if cfg.DatabaseURL == "" {
+		log.Fatal("FATAL: Environment variable DATABASE_URL tidak ditemukan.")
+	}
+	if cfg.WeatherAPIKey == "" {
+		log.Fatal("FATAL: Environment variable WEATHER_API_KEY tidak ditemukan.")
+	}
+	if cfg.WeatherAPIBaseURL == "" {
+		log.Fatal("FATAL: Environment variable WEATHER_API_BASE_URL tidak ditemukan.")
+	}
+	// =========================================================================
+
+	log.Println("INFO: Semua konfigurasi kritis berhasil dimuat.")
+
+	if cfg.Port == "" {
+		cfg.Port = "8080"
+	}
+
+	// ... sisa kode Anda tetap sama ...
 	dbpool, err := pgxpool.New(context.Background(), cfg.DatabaseURL)
 	if err != nil {
 		log.Fatal("Failed to connect to database:", err)
@@ -26,24 +51,31 @@ func main() {
 	defer dbpool.Close()
 
 	queries := sqlc.New(dbpool)
-	authService := auth.NewAuthService(queries, &auth.Config{JWTSecret: cfg.JWTSecret})
-	authHandler := handler.NewAuthHandler(authService)
+	weatherServiceConfig := &weather.Config{
+		APIKey:  cfg.WeatherAPIKey,
+		BaseURL: cfg.WeatherAPIBaseURL,
+	}
+	weatherSvc := weather.NewWeatherService(weatherServiceConfig)
+	authSvc := auth.NewAuthService(queries, &auth.Config{JWTSecret: cfg.JWTSecret})
+	absenceSvc := absence.NewAbsenceService(queries, weatherSvc)
+	authHandler := handler.NewAuthHandler(authSvc)
+	absenceHandler := handler.NewAbsenceHandler(absenceSvc)
 
-	router := mux.NewRouter()
-	router.HandleFunc("/api/register", authHandler.Register).Methods("POST")
-	router.HandleFunc("/api/login", authHandler.Login).Methods("POST")
-	router.Handle("/api/users/{id}", handler.AuthMiddleware(cfg.JWTSecret, "owner")(http.HandlerFunc(authHandler.UpdateUser))).Methods("PUT")
-	router.Handle("/api/users/{id}", handler.AuthMiddleware(cfg.JWTSecret, "owner")(http.HandlerFunc(authHandler.DeleteUser))).Methods("DELETE")
-	router.Handle("/api/users", handler.AuthMiddleware(cfg.JWTSecret, "owner")(http.HandlerFunc(authHandler.GetAllUsers))).Methods("GET")
-
-	// Contoh rute yang dilindungi
-	router.Handle("/api/protected", handler.AuthMiddleware(cfg.JWTSecret, "owner", "staff")(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		claims := r.Context().Value(handler.UserClaimsKey).(*auth.Claims)
-		handler.RespondJSON(w, http.StatusOK, handler.Response{
-			Message: "Access granted",
-			Data:    map[string]interface{}{"user_id": claims.UserID, "role": claims.Role},
-		})
-	}))).Methods("GET")
+	router := mux.NewRouter().PathPrefix("/api").Subrouter()
+	router.HandleFunc("/register", authHandler.Register).Methods("POST")
+	router.HandleFunc("/login", authHandler.Login).Methods("POST")
+	userRouter := router.PathPrefix("/users").Subrouter()
+	userRouter.Use(handler.AuthMiddleware(cfg.JWTSecret, "owner"))
+	userRouter.HandleFunc("", authHandler.GetAllUsers).Methods("GET")
+	userRouter.HandleFunc("/{id:[0-9]+}", authHandler.UpdateUser).Methods("PUT")
+	userRouter.HandleFunc("/{id:[0-9]+}", authHandler.DeleteUser).Methods("DELETE")
+	absenceRouter := router.PathPrefix("/absences").Subrouter()
+	absenceRouter.Use(handler.AuthMiddleware(cfg.JWTSecret, "owner", "staff"))
+	absenceRouter.HandleFunc("/clock-in", absenceHandler.CreateAbsence).Methods("POST")
+	absenceRouter.HandleFunc("", absenceHandler.ListAbsences).Methods("GET")
+	absenceRouter.HandleFunc("/{id:[0-9]+}", absenceHandler.GetAbsence).Methods("GET")
+	absenceRouter.HandleFunc("/{id:[0-9]+}", absenceHandler.UpdateAbsence).Methods("PUT")
+	absenceRouter.HandleFunc("/{id:[0-9]+}", absenceHandler.DeleteAbsence).Methods("DELETE")
 
 	log.Printf("Server running on port %s", cfg.Port)
 	if err := http.ListenAndServe(":"+cfg.Port, router); err != nil {

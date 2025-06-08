@@ -45,9 +45,10 @@ type UpdateUserInput struct {
 }
 
 type Claims struct {
-	UserID int32
-	Email  string
-	Role   string
+	UserID int32  `json:"user_id"`
+	Email  string `json:"email"`
+	Role   string `json:"role"`
+	Name   string `json:"name"`
 	jwt.StandardClaims
 }
 
@@ -105,6 +106,7 @@ func (s *AuthService) Login(ctx context.Context, input LoginInput) (string, erro
 		UserID: user.ID,
 		Email:  user.Email,
 		Role:   user.Role,
+		Name:   user.Name,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(24 * time.Hour).Unix(),
 			IssuedAt:  time.Now().Unix(),

@@ -11,43 +11,113 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const createAbsence = `-- name: CreateAbsence :one
+INSERT INTO absences (
+  id_karyawan,
+  nama_karyawan,
+  tanggal,
+  jam_masuk,
+  jam_jadwal,
+  terlambat,
+  cuaca,
+  latitude,
+  longitude,
+  hari
+) VALUES (
+  $1, $2, $3, $4, $5, $6, $7, $8, $9, $10
+) RETURNING id, id_karyawan, nama_karyawan, tanggal, jam_masuk, jam_jadwal, terlambat, cuaca, latitude, longitude, hari, created_at
+`
+
+type CreateAbsenceParams struct {
+	IDKaryawan   int32       `json:"id_karyawan"`
+	NamaKaryawan string      `json:"nama_karyawan"`
+	Tanggal      pgtype.Date `json:"tanggal"`
+	JamMasuk     pgtype.Time `json:"jam_masuk"`
+	JamJadwal    pgtype.Time `json:"jam_jadwal"`
+	Terlambat    bool        `json:"terlambat"`
+	Cuaca        pgtype.Text `json:"cuaca"`
+	Latitude     float64     `json:"latitude"`
+	Longitude    float64     `json:"longitude"`
+	Hari         string      `json:"hari"`
+}
+
+func (q *Queries) CreateAbsence(ctx context.Context, arg CreateAbsenceParams) (Absence, error) {
+	row := q.db.QueryRow(ctx, createAbsence,
+		arg.IDKaryawan,
+		arg.NamaKaryawan,
+		arg.Tanggal,
+		arg.JamMasuk,
+		arg.JamJadwal,
+		arg.Terlambat,
+		arg.Cuaca,
+		arg.Latitude,
+		arg.Longitude,
+		arg.Hari,
+	)
+	var i Absence
+	err := row.Scan(
+		&i.ID,
+		&i.IDKaryawan,
+		&i.NamaKaryawan,
+		&i.Tanggal,
+		&i.JamMasuk,
+		&i.JamJadwal,
+		&i.Terlambat,
+		&i.Cuaca,
+		&i.Latitude,
+		&i.Longitude,
+		&i.Hari,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const createUser = `-- name: CreateUser :one
-INSERT INTO users (email, password, role, name)
-VALUES ($1, $2, $3, $4)
-RETURNING id, email, role, name, created_at
+INSERT INTO users (
+    email,
+    password,
+    role,
+    name
+) VALUES (
+    $1, $2, $3, $4
+) RETURNING id, email, password, role, name, created_at, updated_at
 `
 
 type CreateUserParams struct {
-	Email    string
-	Password string
-	Role     string
-	Name     string
+	Email    string `json:"email"`
+	Password string `json:"password"`
+	Role     string `json:"role"`
+	Name     string `json:"name"`
 }
 
-type CreateUserRow struct {
-	ID        int32
-	Email     string
-	Role      string
-	Name      string
-	CreatedAt pgtype.Timestamptz
-}
-
-func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (CreateUserRow, error) {
+func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
 	row := q.db.QueryRow(ctx, createUser,
 		arg.Email,
 		arg.Password,
 		arg.Role,
 		arg.Name,
 	)
-	var i CreateUserRow
+	var i User
 	err := row.Scan(
 		&i.ID,
 		&i.Email,
+		&i.Password,
 		&i.Role,
 		&i.Name,
 		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
+}
+
+const deleteAbsence = `-- name: DeleteAbsence :exec
+DELETE FROM absences
+WHERE id = $1
+`
+
+func (q *Queries) DeleteAbsence(ctx context.Context, id int32) error {
+	_, err := q.db.Exec(ctx, deleteAbsence, id)
+	return err
 }
 
 const deleteUser = `-- name: DeleteUser :exec
@@ -60,24 +130,39 @@ func (q *Queries) DeleteUser(ctx context.Context, id int32) error {
 	return err
 }
 
+const getAbsence = `-- name: GetAbsence :one
+SELECT id, id_karyawan, nama_karyawan, tanggal, jam_masuk, jam_jadwal, terlambat, cuaca, latitude, longitude, hari, created_at FROM absences
+WHERE id = $1 LIMIT 1
+`
+
+func (q *Queries) GetAbsence(ctx context.Context, id int32) (Absence, error) {
+	row := q.db.QueryRow(ctx, getAbsence, id)
+	var i Absence
+	err := row.Scan(
+		&i.ID,
+		&i.IDKaryawan,
+		&i.NamaKaryawan,
+		&i.Tanggal,
+		&i.JamMasuk,
+		&i.JamJadwal,
+		&i.Terlambat,
+		&i.Cuaca,
+		&i.Latitude,
+		&i.Longitude,
+		&i.Hari,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT id, email, password, role, name, created_at
-FROM users
+SELECT id, email, password, role, name, created_at, updated_at FROM users
 WHERE email = $1
 `
 
-type GetUserByEmailRow struct {
-	ID        int32
-	Email     string
-	Password  string
-	Role      string
-	Name      string
-	CreatedAt pgtype.Timestamptz
-}
-
-func (q *Queries) GetUserByEmail(ctx context.Context, email string) (GetUserByEmailRow, error) {
+func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error) {
 	row := q.db.QueryRow(ctx, getUserByEmail, email)
-	var i GetUserByEmailRow
+	var i User
 	err := row.Scan(
 		&i.ID,
 		&i.Email,
@@ -85,62 +170,38 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (GetUserByEm
 		&i.Role,
 		&i.Name,
 		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
 
-const getUserByID = `-- name: GetUserByID :one
-SELECT id, email, role, name, created_at
-FROM users
-WHERE id = $1
+const listAbsences = `-- name: ListAbsences :many
+SELECT id, id_karyawan, nama_karyawan, tanggal, jam_masuk, jam_jadwal, terlambat, cuaca, latitude, longitude, hari, created_at FROM absences
+ORDER BY tanggal DESC, jam_masuk DESC
 `
 
-type GetUserByIDRow struct {
-	ID        int32
-	Email     string
-	Role      string
-	Name      string
-	CreatedAt pgtype.Timestamptz
-}
-
-func (q *Queries) GetUserByID(ctx context.Context, id int32) (GetUserByIDRow, error) {
-	row := q.db.QueryRow(ctx, getUserByID, id)
-	var i GetUserByIDRow
-	err := row.Scan(
-		&i.ID,
-		&i.Email,
-		&i.Role,
-		&i.Name,
-		&i.CreatedAt,
-	)
-	return i, err
-}
-
-const listUsers = `-- name: ListUsers :many
-SELECT id, name, email, role FROM users ORDER BY id
-`
-
-type ListUsersRow struct {
-	ID    int32
-	Name  string
-	Email string
-	Role  string
-}
-
-func (q *Queries) ListUsers(ctx context.Context) ([]ListUsersRow, error) {
-	rows, err := q.db.Query(ctx, listUsers)
+func (q *Queries) ListAbsences(ctx context.Context) ([]Absence, error) {
+	rows, err := q.db.Query(ctx, listAbsences)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []ListUsersRow
+	var items []Absence
 	for rows.Next() {
-		var i ListUsersRow
+		var i Absence
 		if err := rows.Scan(
 			&i.ID,
-			&i.Name,
-			&i.Email,
-			&i.Role,
+			&i.IDKaryawan,
+			&i.NamaKaryawan,
+			&i.Tanggal,
+			&i.JamMasuk,
+			&i.JamJadwal,
+			&i.Terlambat,
+			&i.Cuaca,
+			&i.Latitude,
+			&i.Longitude,
+			&i.Hari,
+			&i.CreatedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -152,31 +213,92 @@ func (q *Queries) ListUsers(ctx context.Context) ([]ListUsersRow, error) {
 	return items, nil
 }
 
+const listUsers = `-- name: ListUsers :many
+SELECT id, email, password, role, name, created_at, updated_at FROM users
+ORDER BY created_at DESC
+`
+
+func (q *Queries) ListUsers(ctx context.Context) ([]User, error) {
+	rows, err := q.db.Query(ctx, listUsers)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []User
+	for rows.Next() {
+		var i User
+		if err := rows.Scan(
+			&i.ID,
+			&i.Email,
+			&i.Password,
+			&i.Role,
+			&i.Name,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const updateAbsence = `-- name: UpdateAbsence :one
+UPDATE absences
+SET cuaca = $2
+WHERE id = $1
+RETURNING id, id_karyawan, nama_karyawan, tanggal, jam_masuk, jam_jadwal, terlambat, cuaca, latitude, longitude, hari, created_at
+`
+
+type UpdateAbsenceParams struct {
+	ID    int32       `json:"id"`
+	Cuaca pgtype.Text `json:"cuaca"`
+}
+
+func (q *Queries) UpdateAbsence(ctx context.Context, arg UpdateAbsenceParams) (Absence, error) {
+	row := q.db.QueryRow(ctx, updateAbsence, arg.ID, arg.Cuaca)
+	var i Absence
+	err := row.Scan(
+		&i.ID,
+		&i.IDKaryawan,
+		&i.NamaKaryawan,
+		&i.Tanggal,
+		&i.JamMasuk,
+		&i.JamJadwal,
+		&i.Terlambat,
+		&i.Cuaca,
+		&i.Latitude,
+		&i.Longitude,
+		&i.Hari,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const updateUser = `-- name: UpdateUser :one
 UPDATE users
-SET email = $2, password = $3, role = $4, name = $5, updated_at = CURRENT_TIMESTAMP
+SET 
+    email = $2,
+    password = $3,
+    role = $4,
+    name = $5,
+    updated_at = CURRENT_TIMESTAMP
 WHERE id = $1
-RETURNING id, email, role, name, created_at, updated_at
+RETURNING id, email, password, role, name, created_at, updated_at
 `
 
 type UpdateUserParams struct {
-	ID       int32
-	Email    string
-	Password string
-	Role     string
-	Name     string
+	ID       int32  `json:"id"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
+	Role     string `json:"role"`
+	Name     string `json:"name"`
 }
 
-type UpdateUserRow struct {
-	ID        int32
-	Email     string
-	Role      string
-	Name      string
-	CreatedAt pgtype.Timestamptz
-	UpdatedAt pgtype.Timestamptz
-}
-
-func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (UpdateUserRow, error) {
+func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error) {
 	row := q.db.QueryRow(ctx, updateUser,
 		arg.ID,
 		arg.Email,
@@ -184,10 +306,11 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (UpdateU
 		arg.Role,
 		arg.Name,
 	)
-	var i UpdateUserRow
+	var i User
 	err := row.Scan(
 		&i.ID,
 		&i.Email,
+		&i.Password,
 		&i.Role,
 		&i.Name,
 		&i.CreatedAt,
