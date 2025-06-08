@@ -1,42 +1,61 @@
-# ==================================
-# Global ignores
-.DS_Store
-node_modules/
-.env
-*.env
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Output of go build
+/build/
+bin/
 *.log
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
+
+# Vendor directory
+/vendor/
+
+# Go workspace file
+go.work
+go.work.sum
+
+# Go modules
+go.sum
+
+# Dependency directories
+/pkg/mod/
+
+# Environment variables
+.env
+.env.*
+
+# IDE/editor configs
+.idea/
+.vscode/
 *.swp
 *.swo
-.vscode/
-.idea/
-*.bak
 
-# ==================================
-# React Frontend (front-end/)
-front-end/node_modules/
-front-end/build/
-front-end/.next/
-front-end/.turbo/
+# Docker files
+docker/postgres-data/
+docker/pgdata/
+docker-entrypoint-initdb.d/
+postgres_data/
 
-# ==================================
-# Golang Backend (back-end/)
-back-end/bin/
-back-end/obj/
-back-end/.env
-back-end/go.sum
-back-end/vendor/
+# SQLC generated code (if in a separate gen directory)
+sqlc.yaml
+generated.sql.go
 
-# ==================================
-# ML Python (ml/)
-ml/__pycache__/
-ml/.ipynb_checkpoints/
-ml/venv/
-ml/.env
-ml/model.pkl
-ml/*.h5
-ml/*.joblib
-ml/*.pkl
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs and temp
+*.log
+*.tmp
+
+# Coverage
+coverage.out
+
+# GitHub Codespaces
+.devcontainer/
+
