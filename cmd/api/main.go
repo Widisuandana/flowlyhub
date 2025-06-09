@@ -10,6 +10,7 @@ import (
 	"flowlyhub/internal/auth"
 	"flowlyhub/internal/db/sqlc"
 	"flowlyhub/internal/handler"
+	"flowlyhub/internal/stock" // Impor package stock
 	"flowlyhub/internal/weather"
 
 	"github.com/gorilla/mux"
@@ -43,7 +44,7 @@ func main() {
 		cfg.Port = "8080"
 	}
 
-	// ... sisa kode Anda tetap sama ...
+	// Koneksi ke database
 	dbpool, err := pgxpool.New(context.Background(), cfg.DatabaseURL)
 	if err != nil {
 		log.Fatal("Failed to connect to database:", err)
@@ -51,6 +52,8 @@ func main() {
 	defer dbpool.Close()
 
 	queries := sqlc.New(dbpool)
+
+	// Inisialisasi Services
 	weatherServiceConfig := &weather.Config{
 		APIKey:  cfg.WeatherAPIKey,
 		BaseURL: cfg.WeatherAPIBaseURL,
@@ -58,17 +61,28 @@ func main() {
 	weatherSvc := weather.NewWeatherService(weatherServiceConfig)
 	authSvc := auth.NewAuthService(queries, &auth.Config{JWTSecret: cfg.JWTSecret})
 	absenceSvc := absence.NewAbsenceService(queries, weatherSvc)
+	stockSvc := stock.NewStockService(queries) // Inisialisasi StockService
+
+	// Inisialisasi Handlers
 	authHandler := handler.NewAuthHandler(authSvc)
 	absenceHandler := handler.NewAbsenceHandler(absenceSvc)
+	stockHandler := handler.NewStockHandler(stockSvc) // Inisialisasi StockHandler
 
+	// Setup Router
 	router := mux.NewRouter().PathPrefix("/api").Subrouter()
+
+	// Auth Routes
 	router.HandleFunc("/register", authHandler.Register).Methods("POST")
 	router.HandleFunc("/login", authHandler.Login).Methods("POST")
+
+	// User Routes (Hanya untuk Owner)
 	userRouter := router.PathPrefix("/users").Subrouter()
 	userRouter.Use(handler.AuthMiddleware(cfg.JWTSecret, "owner"))
 	userRouter.HandleFunc("", authHandler.GetAllUsers).Methods("GET")
 	userRouter.HandleFunc("/{id:[0-9]+}", authHandler.UpdateUser).Methods("PUT")
 	userRouter.HandleFunc("/{id:[0-9]+}", authHandler.DeleteUser).Methods("DELETE")
+
+	// Absence Routes (Untuk Owner dan Staff)
 	absenceRouter := router.PathPrefix("/absences").Subrouter()
 	absenceRouter.Use(handler.AuthMiddleware(cfg.JWTSecret, "owner", "staff"))
 	absenceRouter.HandleFunc("/clock-in", absenceHandler.CreateAbsence).Methods("POST")
@@ -77,6 +91,16 @@ func main() {
 	absenceRouter.HandleFunc("/{id:[0-9]+}", absenceHandler.UpdateAbsence).Methods("PUT")
 	absenceRouter.HandleFunc("/{id:[0-9]+}", absenceHandler.DeleteAbsence).Methods("DELETE")
 
+	// Stock Routes (Untuk Owner dan Staff)
+	stockRouter := router.PathPrefix("/stocks").Subrouter()
+	stockRouter.Use(handler.AuthMiddleware(cfg.JWTSecret, "owner", "staff"))
+	stockRouter.HandleFunc("", stockHandler.CreateStock).Methods("POST")
+	stockRouter.HandleFunc("", stockHandler.ListStocks).Methods("GET")
+	stockRouter.HandleFunc("/{id:[0-9]+}", stockHandler.GetStock).Methods("GET")
+	stockRouter.HandleFunc("/{id:[0-9]+}", stockHandler.UpdateStock).Methods("PUT")
+	stockRouter.HandleFunc("/{id:[0-9]+}", stockHandler.DeleteStock).Methods("DELETE")
+
+	// Jalankan Server
 	log.Printf("Server running on port %s", cfg.Port)
 	if err := http.ListenAndServe(":"+cfg.Port, router); err != nil {
 		log.Fatal("Server failed to start:", err)

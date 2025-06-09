@@ -27,3 +27,18 @@ CREATE TABLE absences (
 
 CREATE INDEX idx_absences_tanggal ON absences(tanggal);
 CREATE INDEX idx_absences_id_karyawan ON absences(id_karyawan);
+
+CREATE TABLE stocks (
+id SERIAL PRIMARY KEY,
+tanggal TIMESTAMPZ NOT NULL DEFAULT NOW(),
+nama_menu VARCHAR(255) NOT NULL,
+jumlah_terjual INT NOT NULL,
+kategori_menu VARCHAR(100) NOT NULL,
+harga_satuan DECIMAL(10,2) NOT NULL,
+total_penjualan DECIMAL(10,2) NOT NULL,
+created_at TIMESTAMPZ NOT NULL DEFAULT NOW(),
+updated_at TIMESTAMPZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX idx_stocks_tanggal ON stocks(tanggal);
+CREATE INDEX idx_stocks_kategori_menu ON stocks(kategori_menu);

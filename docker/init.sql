@@ -1,31 +1,38 @@
--- Create users table
-CREATE TABLE users (
+-- Pastikan semua tabel dibuat jika belum ada
+CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
     email VARCHAR(255) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
+    name VARCHAR(255) NOT NULL,
     role VARCHAR(50) NOT NULL CHECK (role IN ('owner', 'staff')),
-    name VARCHAR(100) NOT NULL,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_users_email ON users(email);
-
--- Create absences table
-CREATE TABLE absences (
-  id SERIAL PRIMARY KEY,
-  id_karyawan INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  nama_karyawan VARCHAR(100) NOT NULL,
-  tanggal DATE NOT NULL,
-  jam_masuk TIME NOT NULL,
-  jam_jadwal TIME NOT NULL,
-  terlambat BOOLEAN NOT NULL,
-  cuaca VARCHAR(100),
-  latitude DOUBLE PRECISION NOT NULL,
-  longitude DOUBLE PRECISION NOT NULL,
-  hari VARCHAR(10) NOT NULL,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+CREATE TABLE IF NOT EXISTS absences (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    clock_in TIMESTAMPTZ NOT NULL,
+    clock_out TIMESTAMPTZ,
+    location VARCHAR(255),
+    weather VARCHAR(255),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_absences_tanggal ON absences(tanggal);
-CREATE INDEX idx_absences_id_karyawan ON absences(id_karyawan);
+-- INI BAGIAN YANG PALING PENTING
+CREATE TABLE IF NOT EXISTS stocks (
+    id SERIAL PRIMARY KEY,
+    tanggal TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    nama_menu VARCHAR(255) NOT NULL,
+    jumlah_terjual INT NOT NULL,
+    kategori_menu VARCHAR(100),
+    harga_satuan DECIMAL(10, 2) NOT NULL,
+    total_penjualan DECIMAL(10, 2) NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Opsi: Menambahkan indeks untuk performa
+CREATE INDEX IF NOT EXISTS idx_stocks_tanggal ON stocks(tanggal);
+CREATE INDEX IF NOT EXISTS idx_stocks_kategori_menu ON stocks(kategori_menu);

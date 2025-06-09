@@ -72,6 +72,49 @@ func (q *Queries) CreateAbsence(ctx context.Context, arg CreateAbsenceParams) (A
 	return i, err
 }
 
+const createStock = `-- name: CreateStock :one
+INSERT INTO stocks (
+    nama_menu,
+    jumlah_terjual,
+    kategori_menu,
+    harga_satuan,
+    total_penjualan
+) VALUES (
+    $1, $2, $3, $4, $5
+) RETURNING id, tanggal, nama_menu, jumlah_terjual, kategori_menu, harga_satuan, total_penjualan, created_at, updated_at
+`
+
+type CreateStockParams struct {
+	NamaMenu       string         `json:"nama_menu"`
+	JumlahTerjual  int32          `json:"jumlah_terjual"`
+	KategoriMenu   string         `json:"kategori_menu"`
+	HargaSatuan    pgtype.Numeric `json:"harga_satuan"`
+	TotalPenjualan pgtype.Numeric `json:"total_penjualan"`
+}
+
+func (q *Queries) CreateStock(ctx context.Context, arg CreateStockParams) (Stock, error) {
+	row := q.db.QueryRow(ctx, createStock,
+		arg.NamaMenu,
+		arg.JumlahTerjual,
+		arg.KategoriMenu,
+		arg.HargaSatuan,
+		arg.TotalPenjualan,
+	)
+	var i Stock
+	err := row.Scan(
+		&i.ID,
+		&i.Tanggal,
+		&i.NamaMenu,
+		&i.JumlahTerjual,
+		&i.KategoriMenu,
+		&i.HargaSatuan,
+		&i.TotalPenjualan,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (
     email,
@@ -120,6 +163,16 @@ func (q *Queries) DeleteAbsence(ctx context.Context, id int32) error {
 	return err
 }
 
+const deleteStock = `-- name: DeleteStock :exec
+DELETE FROM stocks
+WHERE id = $1
+`
+
+func (q *Queries) DeleteStock(ctx context.Context, id int32) error {
+	_, err := q.db.Exec(ctx, deleteStock, id)
+	return err
+}
+
 const deleteUser = `-- name: DeleteUser :exec
 DELETE FROM users
 WHERE id = $1
@@ -151,6 +204,28 @@ func (q *Queries) GetAbsence(ctx context.Context, id int32) (Absence, error) {
 		&i.Longitude,
 		&i.Hari,
 		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const getStock = `-- name: GetStock :one
+SELECT id, tanggal, nama_menu, jumlah_terjual, kategori_menu, harga_satuan, total_penjualan, created_at, updated_at FROM stocks
+WHERE id = $1
+`
+
+func (q *Queries) GetStock(ctx context.Context, id int32) (Stock, error) {
+	row := q.db.QueryRow(ctx, getStock, id)
+	var i Stock
+	err := row.Scan(
+		&i.ID,
+		&i.Tanggal,
+		&i.NamaMenu,
+		&i.JumlahTerjual,
+		&i.KategoriMenu,
+		&i.HargaSatuan,
+		&i.TotalPenjualan,
+		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
@@ -202,6 +277,41 @@ func (q *Queries) ListAbsences(ctx context.Context) ([]Absence, error) {
 			&i.Longitude,
 			&i.Hari,
 			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listStocks = `-- name: ListStocks :many
+SELECT id, tanggal, nama_menu, jumlah_terjual, kategori_menu, harga_satuan, total_penjualan, created_at, updated_at FROM stocks
+ORDER BY tanggal DESC
+`
+
+func (q *Queries) ListStocks(ctx context.Context) ([]Stock, error) {
+	rows, err := q.db.Query(ctx, listStocks)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Stock
+	for rows.Next() {
+		var i Stock
+		if err := rows.Scan(
+			&i.ID,
+			&i.Tanggal,
+			&i.NamaMenu,
+			&i.JumlahTerjual,
+			&i.KategoriMenu,
+			&i.HargaSatuan,
+			&i.TotalPenjualan,
+			&i.CreatedAt,
+			&i.UpdatedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -274,6 +384,52 @@ func (q *Queries) UpdateAbsence(ctx context.Context, arg UpdateAbsenceParams) (A
 		&i.Longitude,
 		&i.Hari,
 		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const updateStock = `-- name: UpdateStock :one
+UPDATE stocks
+SET
+    nama_menu = $2,
+    jumlah_terjual = $3,
+    kategori_menu = $4,
+    harga_satuan = $5,
+    total_penjualan = $6,
+    updated_at = NOW()
+WHERE id = $1
+RETURNING id, tanggal, nama_menu, jumlah_terjual, kategori_menu, harga_satuan, total_penjualan, created_at, updated_at
+`
+
+type UpdateStockParams struct {
+	ID             int32          `json:"id"`
+	NamaMenu       string         `json:"nama_menu"`
+	JumlahTerjual  int32          `json:"jumlah_terjual"`
+	KategoriMenu   string         `json:"kategori_menu"`
+	HargaSatuan    pgtype.Numeric `json:"harga_satuan"`
+	TotalPenjualan pgtype.Numeric `json:"total_penjualan"`
+}
+
+func (q *Queries) UpdateStock(ctx context.Context, arg UpdateStockParams) (Stock, error) {
+	row := q.db.QueryRow(ctx, updateStock,
+		arg.ID,
+		arg.NamaMenu,
+		arg.JumlahTerjual,
+		arg.KategoriMenu,
+		arg.HargaSatuan,
+		arg.TotalPenjualan,
+	)
+	var i Stock
+	err := row.Scan(
+		&i.ID,
+		&i.Tanggal,
+		&i.NamaMenu,
+		&i.JumlahTerjual,
+		&i.KategoriMenu,
+		&i.HargaSatuan,
+		&i.TotalPenjualan,
+		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }

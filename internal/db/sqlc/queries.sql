@@ -63,3 +63,40 @@ RETURNING *;
 -- name: DeleteAbsence :exec
 DELETE FROM absences
 WHERE id = $1;
+
+
+-- name: CreateStock :one
+INSERT INTO stocks (
+    nama_menu,
+    jumlah_terjual,
+    kategori_menu,
+    harga_satuan,
+    total_penjualan
+) VALUES (
+    $1, $2, $3, $4, $5
+) RETURNING *;
+
+-- name: GetStock :one
+SELECT * FROM stocks
+WHERE id = $1;
+
+-- name: ListStocks :many
+SELECT * FROM stocks
+ORDER BY tanggal DESC;
+
+-- name: UpdateStock :one
+UPDATE stocks
+SET
+    nama_menu = $2,
+    jumlah_terjual = $3,
+    kategori_menu = $4,
+    harga_satuan = $5,
+    total_penjualan = $6,
+    updated_at = NOW()
+WHERE id = $1
+RETURNING *;
+
+-- name: DeleteStock :exec
+DELETE FROM stocks
+WHERE id = $1;
+

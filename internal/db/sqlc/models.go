@@ -23,6 +23,18 @@ type Absence struct {
 	CreatedAt    pgtype.Timestamptz `json:"created_at"`
 }
 
+type Stock struct {
+	ID             int32          `json:"id"`
+	Tanggal        interface{}    `json:"tanggal"`
+	NamaMenu       string         `json:"nama_menu"`
+	JumlahTerjual  int32          `json:"jumlah_terjual"`
+	KategoriMenu   string         `json:"kategori_menu"`
+	HargaSatuan    pgtype.Numeric `json:"harga_satuan"`
+	TotalPenjualan pgtype.Numeric `json:"total_penjualan"`
+	CreatedAt      interface{}    `json:"created_at"`
+	UpdatedAt      interface{}    `json:"updated_at"`
+}
+
 type User struct {
 	ID        int32              `json:"id"`
 	Email     string             `json:"email"`
