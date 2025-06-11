@@ -1,54 +1,64 @@
-🌟 FlowlyHub - API Manajemen Bisnis
+🌟 **FlowlyHub - API Manajemen Bisnis**
 
 Selamat datang di FlowlyHub API! 🚀
 
 Backend aplikasi manajemen bisnis yang dirancang untuk menjadi tulang punggung operasional usaha Anda. Dibangun dengan Go untuk performa tinggi, skalabilitas, dan keamanan. FlowlyHub mempermudah pengelolaan absensi karyawan, manajemen stok penjualan, dan laporan keuangan dalam satu platform terintegrasi.
-🎯 Fitur Utama
 
-    🔒 Otentikasi Berbasis JWT: Sistem login yang aman dengan JSON Web Tokens (JWT) yang memiliki masa berlaku.
+---
 
-    👑 Manajemen Peran (Roles): Role owner dan staff dengan hak akses terpisah untuk setiap fitur, memastikan keamanan dan integritas data.
+## 🎯 Fitur Utama
 
-    👤 Manajemen Pengguna: Kelola data pengguna (CRUD) dengan mudah, akses khusus untuk owner.
+* 🔒 **Otentikasi Berbasis JWT**
 
-    ⏰ Manajemen Absensi:
+  * Sistem login yang aman dengan JSON Web Tokens (JWT) yang memiliki masa berlaku.
 
-        Catat, lihat, perbarui, dan hapus data absensi karyawan (CRUD).
+* 👑 **Manajemen Peran (Roles)**
 
-        Integrasi Cuaca Otomatis: Absensi otomatis mencatat kondisi cuaca real-time dari OpenWeatherMap berdasarkan lokasi GPS saat clock-in.
+  * Role owner dan staff dengan hak akses terpisah untuk setiap fitur, memastikan keamanan dan integritas data.
 
-    📦 Manajemen Stok Penjualan:
+* 👤 **Manajemen Pengguna**
 
-        Catat setiap item yang terjual dengan endpoint CRUD (POST, GET, PUT, PATCH, DELETE).
+  * Kelola data pengguna (CRUD) dengan mudah, akses khusus untuk owner.
 
-        Mendukung pembaruan data parsial dengan metode PATCH.
+* ⏰ **Manajemen Absensi**
 
-    📊 Laporan Keuangan:
+  * Catat, lihat, perbarui, dan hapus data absensi karyawan (CRUD).
+  * **Integrasi Cuaca Otomatis**: Absensi otomatis mencatat kondisi cuaca real-time dari OpenWeatherMap berdasarkan lokasi GPS saat clock-in.
 
-        Catat setiap pemasukan dan pengeluaran bisnis dengan endpoint CRUD.
+* 📦 **Manajemen Stok Penjualan**
 
-        Akses dibatasi hanya untuk owner untuk menjaga kerahasiaan data finansial.
+  * Catat setiap item yang terjual dengan endpoint CRUD (POST, GET, PUT, PATCH, DELETE).
+  * Mendukung pembaruan data parsial dengan metode PATCH.
 
-    🔗 Integrasi Otomatis Stok ke Laporan: Fitur paling cerdas! Setiap penjualan yang tercatat di Manajemen Stok akan secara otomatis membuat catatan pemasukan di Laporan Keuangan, memastikan data operasional dan finansial selalu sinkron.
+* 📊 **Laporan Keuangan**
 
-    🐳 Siap Docker: Jalankan seluruh aplikasi dan database PostgreSQL hanya dengan satu perintah menggunakan Docker Compose.
+  * Catat setiap pemasukan dan pengeluaran bisnis dengan endpoint CRUD.
+  * Akses dibatasi hanya untuk owner untuk menjaga kerahasiaan data finansial.
 
-🛠️ Tech Stack
+* 🔗 **Integrasi Otomatis Stok ke Laporan**
 
-    Bahasa: Go (Golang)
+  * Setiap penjualan yang tercatat di Manajemen Stok akan secara otomatis membuat catatan pemasukan di Laporan Keuangan.
 
-    Database: PostgreSQL
+* 🐳 **Siap Docker**
 
-    Router: Gorilla Mux
+  * Jalankan seluruh aplikasi dan database PostgreSQL hanya dengan satu perintah menggunakan Docker Compose.
 
-    Database Driver: pgx/v5
+---
 
-    ORM/Query Builder: sqlc
+## 🛠️ Tech Stack
 
-    Environment: Docker & Docker Compose
+* **Bahasa**: Go (Golang)
+* **Database**: PostgreSQL
+* **Router**: Gorilla Mux
+* **Database Driver**: pgx/v5
+* **ORM/Query Builder**: sqlc
+* **Environment**: Docker & Docker Compose
 
-📂 Struktur Proyek
+---
 
+## 📂 Struktur Proyek
+
+```
 cmd/api/
  └── main.go           # Entry point aplikasi & registrasi router
 internal/
@@ -65,423 +75,136 @@ docker/
  └── init.sql          # Skema lengkap dan data awal database
 docker-compose.yml     # Orkestrasi Docker Compose
 .env.example           # Template environment variables
+```
 
-🚀 Cara Setup & Jalankan
-Prasyarat:
+---
 
-    Docker & Git terinstal dan berjalan.
+## 🚀 Cara Setup & Jalankan
 
-Langkah-langkah:
+### Prasyarat:
 
-    Clone Repositori:
+* Docker & Git terinstal dan berjalan.
 
-    git clone <URL_REPOSITORI_ANDA>
-    cd <NAMA_FOLDER_REPOSITORI>
+### Langkah-langkah:
 
-    Konfigurasi Environment:
-    Salin file .env.example menjadi .env.
+1. **Clone Repositori**
 
-    cp .env.example .env
+```bash
+git clone <URL_REPOSITORI_ANDA>
+cd <NAMA_FOLDER_REPOSITORI>
+```
 
-    Buka file .env dan isi nilainya, terutama:
+2. **Konfigurasi Environment**
 
-        JWT_SECRET: String acak yang sangat rahasia.
+```bash
+cp .env.example .env
+```
 
-        WEATHER_API_KEY: API Key valid dari OpenWeatherMap.
+Isi nilai pada file `.env`, terutama:
 
-    Jalankan dengan Docker Compose:
-    Perintah ini akan membangun image, membuat database, dan menjalankan aplikasi Anda.
+* `JWT_SECRET`: String acak yang sangat rahasia.
+* `WEATHER_API_KEY`: API Key valid dari OpenWeatherMap.
 
-    docker-compose up -d --build
+3. **Jalankan dengan Docker Compose**
 
-    Verifikasi:
-    Cek log aplikasi untuk memastikan semuanya berjalan lancar:
+```bash
+docker-compose up -d --build
+```
 
-    docker-compose logs app -f
+4. **Verifikasi**
 
-    Jika muncul pesan Server running on port 8080, API Anda siap diakses di: 🌐 http://localhost:8080
+```bash
+docker-compose logs app -f
+```
 
-👨‍💻 Dokumentasi API Lengkap
+Jika muncul pesan `Server running on port 8080`, API Anda siap diakses di: [http://localhost:8080](http://localhost:8080)
 
-Base URL: http://localhost:8080/api
-Gunakan header: Authorization: Bearer <jwt_token> untuk endpoint yang memerlukan otentikasi.
-🔐 Otentikasi
+---
 
-Endpoint
-	
+## 👨‍💻 Dokumentasi API Lengkap
 
-Method
-	
+### Base URL
 
-Deskripsi
-	
+`http://localhost:8080/api`
 
-Role
-	
+Gunakan header:
 
-Body (Contoh)
+```
+Authorization: Bearer <jwt_token>
+```
 
-/register
-	
+### 🔐 Otentikasi
 
-POST
-	
+| Endpoint  | Method | Deskripsi              | Role   | Body Contoh                                                          |
+| --------- | ------ | ---------------------- | ------ | -------------------------------------------------------------------- |
+| /register | POST   | Registrasi user baru   | Public | `{ "email":"u@e.com","pass":"secret","name":"User","role":"staff" }` |
+| /login    | POST   | Login dan dapatkan JWT | Public | `{ "email":"u@e.com","pass":"secret" }`                              |
 
-Registrasi user baru
-	
+### 📦 Manajemen Stok
 
-Public
-	
+| Endpoint     | Method | Deskripsi                  | Role         | Body Contoh                                                           |
+| ------------ | ------ | -------------------------- | ------------ | --------------------------------------------------------------------- |
+| /stocks      | POST   | Catat penjualan baru       | owner, staff | `{ "nama_menu":"Kopi","jumlah_terjual":5,"harga_satuan":15000 }`      |
+| /stocks      | GET    | Dapatkan semua data stok   | owner, staff | -                                                                     |
+| /stocks/{id} | GET    | Detail stok berdasarkan ID | owner, staff | -                                                                     |
+| /stocks/{id} | PUT    | Update seluruh data stok   | owner, staff | `{ "nama_menu":"Kopi Susu","jumlah_terjual":6,"harga_satuan":18000 }` |
+| /stocks/{id} | PATCH  | Update sebagian data stok  | owner, staff | `{ "harga_satuan":17500 }`                                            |
+| /stocks/{id} | DELETE | Hapus data stok            | owner, staff | -                                                                     |
 
-{"email":"u@e.com","pass":"secret","name":"User","role":"staff"}
+### 📊 Laporan Keuangan
 
-/login
-	
+| Endpoint      | Method | Deskripsi                   | Role  | Body Contoh                                                              |
+| ------------- | ------ | --------------------------- | ----- | ------------------------------------------------------------------------ |
+| /reports      | POST   | Buat laporan baru           | owner | `{ "jenis_transaksi":"pengeluaran","kategori":"Gaji","jumlah":500000 }`  |
+| /reports      | GET    | Dapatkan semua laporan      | owner | -                                                                        |
+| /reports/{id} | GET    | Detail laporan by ID        | owner | -                                                                        |
+| /reports/{id} | PUT    | Update seluruh data laporan | owner | `{ "jenis_transaksi":"pengeluaran","kategori":"Sewa","jumlah":1000000 }` |
+| /reports/{id} | DELETE | Hapus laporan               | owner | -                                                                        |
 
-POST
-	
+### ⏰ Manajemen Absensi
 
-Login dan dapatkan JWT
-	
+| Endpoint           | Method | Deskripsi                   | Role         | Body Contoh                                |
+| ------------------ | ------ | --------------------------- | ------------ | ------------------------------------------ |
+| /absences/clock-in | POST   | Tambah absensi (clock-in)   | owner, staff | `{ "latitude": -8.1, "longitude": 115.0 }` |
+| /absences          | GET    | Dapatkan semua data absensi | owner, staff | -                                          |
+| /absences/{id}     | PUT    | Update absensi (clock-out)  | owner, staff | `{ "clock_out": "2025-06-12T17:00:00Z" }`  |
+| /absences/{id}     | DELETE | Hapus data absensi          | owner, staff | -                                          |
 
-Public
-	
+### 👤 Manajemen User
 
-{"email":"u@e.com","pass":"secret"}
-📦 Manajemen Stok
+| Endpoint    | Method | Deskripsi       | Role  |
+| ----------- | ------ | --------------- | ----- |
+| /users      | GET    | List semua user | owner |
+| /users/{id} | PUT    | Update user     | owner |
+| /users/{id} | DELETE | Hapus user      | owner |
 
-Endpoint
-	
+---
 
-Method
-	
-
-Deskripsi
-	
-
-Role
-	
-
-Body (Contoh)
-
-/stocks
-	
-
-POST
-	
-
-Catat penjualan baru
-	
-
-owner, staff
-	
-
-{"nama_menu":"Kopi","jumlah_terjual":5,"harga_satuan":15000}
-
-/stocks
-	
-
-GET
-	
-
-Dapatkan semua data stok
-	
-
-owner, staff
-	
-
--
-
-/stocks/{id}
-	
-
-GET
-	
-
-Detail stok berdasarkan ID
-	
-
-owner, staff
-	
-
--
-
-/stocks/{id}
-	
-
-PUT
-	
-
-Update seluruh data stok
-	
-
-owner, staff
-	
-
-{"nama_menu":"Kopi Susu","jumlah_terjual":6,"harga_satuan":18000}
-
-/stocks/{id}
-	
-
-PATCH
-	
-
-Update sebagian data stok
-	
-
-owner, staff
-	
-
-{"harga_satuan": 17500}
-
-/stocks/{id}
-	
-
-DELETE
-	
-
-Hapus data stok
-	
-
-owner, staff
-	
-
--
-📊 Laporan Keuangan
-
-Endpoint
-	
-
-Method
-	
-
-Deskripsi
-	
-
-Role
-	
-
-Body (Contoh)
-
-/reports
-	
-
-POST
-	
-
-Buat laporan baru
-	
-
-owner
-	
-
-{"jenis_transaksi":"pengeluaran","kategori":"Gaji","jumlah":500000}
-
-/reports
-	
-
-GET
-	
-
-Dapatkan semua laporan
-	
-
-owner
-	
-
--
-
-/reports/{id}
-	
-
-GET
-	
-
-Detail laporan by ID
-	
-
-owner
-	
-
--
-
-/reports/{id}
-	
-
-PUT
-	
-
-Update seluruh data laporan
-	
-
-owner
-	
-
-{"jenis_transaksi":"pengeluaran","kategori":"Sewa","jumlah":1000000}
-
-/reports/{id}
-	
-
-DELETE
-	
-
-Hapus laporan
-	
-
-owner
-	
-
--
-⏰ Manajemen Absensi
-
-Endpoint
-	
-
-Method
-	
-
-Deskripsi
-	
-
-Role
-	
-
-Body (Contoh)
-
-/absences/clock-in
-	
-
-POST
-	
-
-Tambah absensi (clock-in)
-	
-
-owner, staff
-	
-
-{"latitude": -8.1, "longitude": 115.0}
-
-/absences
-	
-
-GET
-	
-
-Dapatkan semua data absensi
-	
-
-owner, staff
-	
-
--
-
-/absences/{id}
-	
-
-PUT
-	
-
-Update absensi (clock-out)
-	
-
-owner, staff
-	
-
-{"clock_out": "2025-06-12T17:00:00Z"}
-
-/absences/{id}
-	
-
-DELETE
-	
-
-Hapus data absensi
-	
-
-owner, staff
-	
-
--
-👤 Manajemen User
-
-Endpoint
-	
-
-Method
-	
-
-Deskripsi
-	
-
-Role
-
-/users
-	
-
-GET
-	
-
-List semua user
-	
-
-owner
-
-/users/{id}
-	
-
-PUT
-	
-
-Update user
-	
-
-owner
-
-/users/{id}
-	
-
-DELETE
-	
-
-Hapus user
-	
-
-owner
-🧠 Ide Proyek Machine Learning
+## 🧠 Ide Proyek Machine Learning
 
 Data yang terkumpul di FlowlyHub sangat kaya dan bisa menjadi dasar untuk proyek-proyek data science yang bernilai bisnis tinggi.
 
-    Prediksi Penjualan (Sales Forecasting)
+### Prediksi Penjualan (Sales Forecasting)
 
-        Tujuan: Memprediksi total_penjualan atau jumlah_terjual untuk periode berikutnya (harian/mingguan).
+* **Tujuan**: Memprediksi `total_penjualan` atau `jumlah_terjual` untuk periode berikutnya.
+* **Fitur**: Waktu (hari, minggu), nama\_menu, kategori\_menu.
+* **Algoritma**: ARIMA, Prophet, model time-series lainnya.
+* **Manfaat**: Membantu manajemen stok dan strategi promosi.
 
-        Fitur: Waktu (hari, minggu), nama_menu, kategori_menu.
+### Analisis Keranjang Belanja (Market Basket Analysis)
 
-        Algoritma: ARIMA, Prophet, atau model time-series lainnya.
+* **Tujuan**: Menemukan produk apa yang sering dibeli bersamaan.
+* **Data**: Kelompokkan data penjualan berdasarkan waktu yang berdekatan.
+* **Algoritma**: Apriori, FP-Growth.
+* **Manfaat**: Dasar untuk membuat bundling promo dan pengaturan menu.
 
-        Manfaat: Membantu manajemen stok bahan baku dan strategi promosi.
+### Model Prediksi Keterlambatan Karyawan
 
-    Analisis Keranjang Belanja (Market Basket Analysis)
+* **Tujuan**: Memprediksi kemungkinan keterlambatan.
+* **Fitur**: Cuaca, jam, hari, histori keterlambatan.
+* **Algoritma**: Logistic Regression, Random Forest, XGBoost.
+* **Manfaat**: Membantu SDM dalam penjadwalan dan evaluasi kinerja.
 
-        Tujuan: Menemukan produk apa yang sering dibeli bersamaan.
+---
 
-        Data: Kelompokkan data penjualan berdasarkan waktu yang berdekatan.
-
-        Algoritma: Apriori, FP-Growth.
-
-        Manfaat: Dasar untuk membuat paket promo (bundling) atau mengatur tata letak menu.
-
-    Model Prediksi Keterlambatan Karyawan
-
-        Tujuan: Memprediksi kemungkinan seorang karyawan datang terlambat.
-
-        Fitur: cuaca, jam, hari dalam seminggu, histori keterlambatan sebelumnya.
-
-        Algoritma: Logistic Regression, Random Forest, XGBoost.
-
-        Manfaat: Membantu manajemen SDM dalam penjadwalan dan evaluasi kinerja.
-
-🎉 Mulai Sekarang!
-
-FlowlyHub adalah solusi modern untuk manajemen bisnis. Clone repositori ini, ikuti langkah setup, dan mulailah mengelola bisnis Anda dengan lebih cerdas! 🚀
+🎉 **Mulai Sekarang!**
