@@ -9,38 +9,45 @@ import (
 )
 
 type Absence struct {
-	ID           int32              `json:"id"`
-	IDKaryawan   int32              `json:"id_karyawan"`
-	NamaKaryawan string             `json:"nama_karyawan"`
-	Tanggal      pgtype.Date        `json:"tanggal"`
-	JamMasuk     pgtype.Time        `json:"jam_masuk"`
-	JamJadwal    pgtype.Time        `json:"jam_jadwal"`
-	Terlambat    bool               `json:"terlambat"`
-	Cuaca        pgtype.Text        `json:"cuaca"`
-	Latitude     float64            `json:"latitude"`
-	Longitude    float64            `json:"longitude"`
-	Hari         string             `json:"hari"`
-	CreatedAt    pgtype.Timestamptz `json:"created_at"`
+	ID        int32              `json:"id"`
+	UserID    int32              `json:"user_id"`
+	ClockIn   pgtype.Timestamptz `json:"clock_in"`
+	ClockOut  pgtype.Timestamptz `json:"clock_out"`
+	Location  pgtype.Text        `json:"location"`
+	Weather   pgtype.Text        `json:"weather"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
+}
+
+type Report struct {
+	ID                int32              `json:"id"`
+	Tanggal           pgtype.Timestamptz `json:"tanggal"`
+	JenisTransaksi    string             `json:"jenis_transaksi"`
+	KategoriTransaksi string             `json:"kategori_transaksi"`
+	Jumlah            pgtype.Numeric     `json:"jumlah"`
+	Keterangan        pgtype.Text        `json:"keterangan"`
+	CreatedAt         pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt         pgtype.Timestamptz `json:"updated_at"`
 }
 
 type Stock struct {
-	ID             int32          `json:"id"`
-	Tanggal        interface{}    `json:"tanggal"`
-	NamaMenu       string         `json:"nama_menu"`
-	JumlahTerjual  int32          `json:"jumlah_terjual"`
-	KategoriMenu   string         `json:"kategori_menu"`
-	HargaSatuan    pgtype.Numeric `json:"harga_satuan"`
-	TotalPenjualan pgtype.Numeric `json:"total_penjualan"`
-	CreatedAt      interface{}    `json:"created_at"`
-	UpdatedAt      interface{}    `json:"updated_at"`
+	ID             int32              `json:"id"`
+	Tanggal        pgtype.Timestamptz `json:"tanggal"`
+	NamaMenu       string             `json:"nama_menu"`
+	JumlahTerjual  int32              `json:"jumlah_terjual"`
+	KategoriMenu   pgtype.Text        `json:"kategori_menu"`
+	HargaSatuan    pgtype.Numeric     `json:"harga_satuan"`
+	TotalPenjualan pgtype.Numeric     `json:"total_penjualan"`
+	CreatedAt      pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt      pgtype.Timestamptz `json:"updated_at"`
 }
 
 type User struct {
 	ID        int32              `json:"id"`
 	Email     string             `json:"email"`
 	Password  string             `json:"password"`
-	Role      string             `json:"role"`
 	Name      string             `json:"name"`
+	Role      string             `json:"role"`
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
 	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
 }

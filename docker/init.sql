@@ -1,4 +1,6 @@
--- Pastikan semua tabel dibuat jika belum ada
+-- Skrip ini akan membuat semua tabel yang dibutuhkan dari awal.
+-- Dijalankan oleh Docker saat volume database dibuat pertama kali.
+
 CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
     email VARCHAR(255) UNIQUE NOT NULL,
@@ -20,7 +22,6 @@ CREATE TABLE IF NOT EXISTS absences (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- INI BAGIAN YANG PALING PENTING
 CREATE TABLE IF NOT EXISTS stocks (
     id SERIAL PRIMARY KEY,
     tanggal TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -33,6 +34,17 @@ CREATE TABLE IF NOT EXISTS stocks (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- Opsi: Menambahkan indeks untuk performa
-CREATE INDEX IF NOT EXISTS idx_stocks_tanggal ON stocks(tanggal);
-CREATE INDEX IF NOT EXISTS idx_stocks_kategori_menu ON stocks(kategori_menu);
+CREATE TABLE IF NOT EXISTS reports (
+    id SERIAL PRIMARY KEY,
+    tanggal TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    jenis_transaksi VARCHAR(50) NOT NULL CHECK (jenis_transaksi IN ('pemasukan', 'pengeluaran')),
+    kategori_transaksi VARCHAR(100) NOT NULL,
+    jumlah DECIMAL(15, 2) NOT NULL,
+    keterangan TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Indeks Opsional untuk Performa
+CREATE INDEX IF NOT EXISTS idx_reports_tanggal ON reports(tanggal);
+CREATE INDEX IF NOT EXISTS idx_reports_jenis_transaksi ON reports(jenis_transaksi);

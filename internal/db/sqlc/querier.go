@@ -10,18 +10,23 @@ import (
 
 type Querier interface {
 	CreateAbsence(ctx context.Context, arg CreateAbsenceParams) (Absence, error)
+	CreateReport(ctx context.Context, arg CreateReportParams) (Report, error)
 	CreateStock(ctx context.Context, arg CreateStockParams) (Stock, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	DeleteAbsence(ctx context.Context, id int32) error
+	DeleteReport(ctx context.Context, id int32) error
 	DeleteStock(ctx context.Context, id int32) error
 	DeleteUser(ctx context.Context, id int32) error
 	GetAbsence(ctx context.Context, id int32) (Absence, error)
+	GetReport(ctx context.Context, id int32) (Report, error)
 	GetStock(ctx context.Context, id int32) (Stock, error)
 	GetUserByEmail(ctx context.Context, email string) (User, error)
 	ListAbsences(ctx context.Context) ([]Absence, error)
+	ListReports(ctx context.Context) ([]Report, error)
 	ListStocks(ctx context.Context) ([]Stock, error)
-	ListUsers(ctx context.Context) ([]User, error)
+	ListUsers(ctx context.Context) ([]ListUsersRow, error)
 	UpdateAbsence(ctx context.Context, arg UpdateAbsenceParams) (Absence, error)
+	UpdateReport(ctx context.Context, arg UpdateReportParams) (Report, error)
 	UpdateStock(ctx context.Context, arg UpdateStockParams) (Stock, error)
 	UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error)
 }

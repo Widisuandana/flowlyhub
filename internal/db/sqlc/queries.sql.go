@@ -13,61 +13,78 @@ import (
 
 const createAbsence = `-- name: CreateAbsence :one
 INSERT INTO absences (
-  id_karyawan,
-  nama_karyawan,
-  tanggal,
-  jam_masuk,
-  jam_jadwal,
-  terlambat,
-  cuaca,
-  latitude,
-  longitude,
-  hari
+    user_id,
+    clock_in,
+    location,
+    weather
 ) VALUES (
-  $1, $2, $3, $4, $5, $6, $7, $8, $9, $10
-) RETURNING id, id_karyawan, nama_karyawan, tanggal, jam_masuk, jam_jadwal, terlambat, cuaca, latitude, longitude, hari, created_at
+    $1, $2, $3, $4
+) RETURNING id, user_id, clock_in, clock_out, location, weather, created_at, updated_at
 `
 
 type CreateAbsenceParams struct {
-	IDKaryawan   int32       `json:"id_karyawan"`
-	NamaKaryawan string      `json:"nama_karyawan"`
-	Tanggal      pgtype.Date `json:"tanggal"`
-	JamMasuk     pgtype.Time `json:"jam_masuk"`
-	JamJadwal    pgtype.Time `json:"jam_jadwal"`
-	Terlambat    bool        `json:"terlambat"`
-	Cuaca        pgtype.Text `json:"cuaca"`
-	Latitude     float64     `json:"latitude"`
-	Longitude    float64     `json:"longitude"`
-	Hari         string      `json:"hari"`
+	UserID   int32              `json:"user_id"`
+	ClockIn  pgtype.Timestamptz `json:"clock_in"`
+	Location pgtype.Text        `json:"location"`
+	Weather  pgtype.Text        `json:"weather"`
 }
 
 func (q *Queries) CreateAbsence(ctx context.Context, arg CreateAbsenceParams) (Absence, error) {
 	row := q.db.QueryRow(ctx, createAbsence,
-		arg.IDKaryawan,
-		arg.NamaKaryawan,
-		arg.Tanggal,
-		arg.JamMasuk,
-		arg.JamJadwal,
-		arg.Terlambat,
-		arg.Cuaca,
-		arg.Latitude,
-		arg.Longitude,
-		arg.Hari,
+		arg.UserID,
+		arg.ClockIn,
+		arg.Location,
+		arg.Weather,
 	)
 	var i Absence
 	err := row.Scan(
 		&i.ID,
-		&i.IDKaryawan,
-		&i.NamaKaryawan,
-		&i.Tanggal,
-		&i.JamMasuk,
-		&i.JamJadwal,
-		&i.Terlambat,
-		&i.Cuaca,
-		&i.Latitude,
-		&i.Longitude,
-		&i.Hari,
+		&i.UserID,
+		&i.ClockIn,
+		&i.ClockOut,
+		&i.Location,
+		&i.Weather,
 		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const createReport = `-- name: CreateReport :one
+INSERT INTO reports (
+    jenis_transaksi,
+    kategori_transaksi,
+    jumlah,
+    keterangan
+) VALUES (
+    $1, $2, $3, $4
+) RETURNING id, tanggal, jenis_transaksi, kategori_transaksi, jumlah, keterangan, created_at, updated_at
+`
+
+type CreateReportParams struct {
+	JenisTransaksi    string         `json:"jenis_transaksi"`
+	KategoriTransaksi string         `json:"kategori_transaksi"`
+	Jumlah            pgtype.Numeric `json:"jumlah"`
+	Keterangan        pgtype.Text    `json:"keterangan"`
+}
+
+func (q *Queries) CreateReport(ctx context.Context, arg CreateReportParams) (Report, error) {
+	row := q.db.QueryRow(ctx, createReport,
+		arg.JenisTransaksi,
+		arg.KategoriTransaksi,
+		arg.Jumlah,
+		arg.Keterangan,
+	)
+	var i Report
+	err := row.Scan(
+		&i.ID,
+		&i.Tanggal,
+		&i.JenisTransaksi,
+		&i.KategoriTransaksi,
+		&i.Jumlah,
+		&i.Keterangan,
+		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
@@ -87,7 +104,7 @@ INSERT INTO stocks (
 type CreateStockParams struct {
 	NamaMenu       string         `json:"nama_menu"`
 	JumlahTerjual  int32          `json:"jumlah_terjual"`
-	KategoriMenu   string         `json:"kategori_menu"`
+	KategoriMenu   pgtype.Text    `json:"kategori_menu"`
 	HargaSatuan    pgtype.Numeric `json:"harga_satuan"`
 	TotalPenjualan pgtype.Numeric `json:"total_penjualan"`
 }
@@ -119,34 +136,34 @@ const createUser = `-- name: CreateUser :one
 INSERT INTO users (
     email,
     password,
-    role,
-    name
+    name,
+    role
 ) VALUES (
     $1, $2, $3, $4
-) RETURNING id, email, password, role, name, created_at, updated_at
+) RETURNING id, email, password, name, role, created_at, updated_at
 `
 
 type CreateUserParams struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
-	Role     string `json:"role"`
 	Name     string `json:"name"`
+	Role     string `json:"role"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
 	row := q.db.QueryRow(ctx, createUser,
 		arg.Email,
 		arg.Password,
-		arg.Role,
 		arg.Name,
+		arg.Role,
 	)
 	var i User
 	err := row.Scan(
 		&i.ID,
 		&i.Email,
 		&i.Password,
-		&i.Role,
 		&i.Name,
+		&i.Role,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -160,6 +177,16 @@ WHERE id = $1
 
 func (q *Queries) DeleteAbsence(ctx context.Context, id int32) error {
 	_, err := q.db.Exec(ctx, deleteAbsence, id)
+	return err
+}
+
+const deleteReport = `-- name: DeleteReport :exec
+DELETE FROM reports
+WHERE id = $1
+`
+
+func (q *Queries) DeleteReport(ctx context.Context, id int32) error {
+	_, err := q.db.Exec(ctx, deleteReport, id)
 	return err
 }
 
@@ -184,8 +211,8 @@ func (q *Queries) DeleteUser(ctx context.Context, id int32) error {
 }
 
 const getAbsence = `-- name: GetAbsence :one
-SELECT id, id_karyawan, nama_karyawan, tanggal, jam_masuk, jam_jadwal, terlambat, cuaca, latitude, longitude, hari, created_at FROM absences
-WHERE id = $1 LIMIT 1
+SELECT id, user_id, clock_in, clock_out, location, weather, created_at, updated_at FROM absences
+WHERE id = $1
 `
 
 func (q *Queries) GetAbsence(ctx context.Context, id int32) (Absence, error) {
@@ -193,17 +220,34 @@ func (q *Queries) GetAbsence(ctx context.Context, id int32) (Absence, error) {
 	var i Absence
 	err := row.Scan(
 		&i.ID,
-		&i.IDKaryawan,
-		&i.NamaKaryawan,
-		&i.Tanggal,
-		&i.JamMasuk,
-		&i.JamJadwal,
-		&i.Terlambat,
-		&i.Cuaca,
-		&i.Latitude,
-		&i.Longitude,
-		&i.Hari,
+		&i.UserID,
+		&i.ClockIn,
+		&i.ClockOut,
+		&i.Location,
+		&i.Weather,
 		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getReport = `-- name: GetReport :one
+SELECT id, tanggal, jenis_transaksi, kategori_transaksi, jumlah, keterangan, created_at, updated_at FROM reports
+WHERE id = $1
+`
+
+func (q *Queries) GetReport(ctx context.Context, id int32) (Report, error) {
+	row := q.db.QueryRow(ctx, getReport, id)
+	var i Report
+	err := row.Scan(
+		&i.ID,
+		&i.Tanggal,
+		&i.JenisTransaksi,
+		&i.KategoriTransaksi,
+		&i.Jumlah,
+		&i.Keterangan,
+		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
@@ -231,7 +275,7 @@ func (q *Queries) GetStock(ctx context.Context, id int32) (Stock, error) {
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT id, email, password, role, name, created_at, updated_at FROM users
+SELECT id, email, password, name, role, created_at, updated_at FROM users
 WHERE email = $1
 `
 
@@ -242,8 +286,8 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 		&i.ID,
 		&i.Email,
 		&i.Password,
-		&i.Role,
 		&i.Name,
+		&i.Role,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -251,8 +295,8 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 }
 
 const listAbsences = `-- name: ListAbsences :many
-SELECT id, id_karyawan, nama_karyawan, tanggal, jam_masuk, jam_jadwal, terlambat, cuaca, latitude, longitude, hari, created_at FROM absences
-ORDER BY tanggal DESC, jam_masuk DESC
+SELECT id, user_id, clock_in, clock_out, location, weather, created_at, updated_at FROM absences
+ORDER BY clock_in DESC
 `
 
 func (q *Queries) ListAbsences(ctx context.Context) ([]Absence, error) {
@@ -266,17 +310,47 @@ func (q *Queries) ListAbsences(ctx context.Context) ([]Absence, error) {
 		var i Absence
 		if err := rows.Scan(
 			&i.ID,
-			&i.IDKaryawan,
-			&i.NamaKaryawan,
-			&i.Tanggal,
-			&i.JamMasuk,
-			&i.JamJadwal,
-			&i.Terlambat,
-			&i.Cuaca,
-			&i.Latitude,
-			&i.Longitude,
-			&i.Hari,
+			&i.UserID,
+			&i.ClockIn,
+			&i.ClockOut,
+			&i.Location,
+			&i.Weather,
 			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listReports = `-- name: ListReports :many
+SELECT id, tanggal, jenis_transaksi, kategori_transaksi, jumlah, keterangan, created_at, updated_at FROM reports
+ORDER BY tanggal DESC
+`
+
+func (q *Queries) ListReports(ctx context.Context) ([]Report, error) {
+	rows, err := q.db.Query(ctx, listReports)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Report
+	for rows.Next() {
+		var i Report
+		if err := rows.Scan(
+			&i.ID,
+			&i.Tanggal,
+			&i.JenisTransaksi,
+			&i.KategoriTransaksi,
+			&i.Jumlah,
+			&i.Keterangan,
+			&i.CreatedAt,
+			&i.UpdatedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -324,27 +398,33 @@ func (q *Queries) ListStocks(ctx context.Context) ([]Stock, error) {
 }
 
 const listUsers = `-- name: ListUsers :many
-SELECT id, email, password, role, name, created_at, updated_at FROM users
+SELECT id, email, name, role, created_at FROM users
 ORDER BY created_at DESC
 `
 
-func (q *Queries) ListUsers(ctx context.Context) ([]User, error) {
+type ListUsersRow struct {
+	ID        int32              `json:"id"`
+	Email     string             `json:"email"`
+	Name      string             `json:"name"`
+	Role      string             `json:"role"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+}
+
+func (q *Queries) ListUsers(ctx context.Context) ([]ListUsersRow, error) {
 	rows, err := q.db.Query(ctx, listUsers)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []User
+	var items []ListUsersRow
 	for rows.Next() {
-		var i User
+		var i ListUsersRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.Email,
-			&i.Password,
-			&i.Role,
 			&i.Name,
+			&i.Role,
 			&i.CreatedAt,
-			&i.UpdatedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -358,32 +438,87 @@ func (q *Queries) ListUsers(ctx context.Context) ([]User, error) {
 
 const updateAbsence = `-- name: UpdateAbsence :one
 UPDATE absences
-SET cuaca = $2
+SET
+    user_id = $2,
+    clock_in = $3,
+    clock_out = $4,
+    location = $5,
+    weather = $6,
+    updated_at = NOW()
 WHERE id = $1
-RETURNING id, id_karyawan, nama_karyawan, tanggal, jam_masuk, jam_jadwal, terlambat, cuaca, latitude, longitude, hari, created_at
+RETURNING id, user_id, clock_in, clock_out, location, weather, created_at, updated_at
 `
 
 type UpdateAbsenceParams struct {
-	ID    int32       `json:"id"`
-	Cuaca pgtype.Text `json:"cuaca"`
+	ID       int32              `json:"id"`
+	UserID   int32              `json:"user_id"`
+	ClockIn  pgtype.Timestamptz `json:"clock_in"`
+	ClockOut pgtype.Timestamptz `json:"clock_out"`
+	Location pgtype.Text        `json:"location"`
+	Weather  pgtype.Text        `json:"weather"`
 }
 
 func (q *Queries) UpdateAbsence(ctx context.Context, arg UpdateAbsenceParams) (Absence, error) {
-	row := q.db.QueryRow(ctx, updateAbsence, arg.ID, arg.Cuaca)
+	row := q.db.QueryRow(ctx, updateAbsence,
+		arg.ID,
+		arg.UserID,
+		arg.ClockIn,
+		arg.ClockOut,
+		arg.Location,
+		arg.Weather,
+	)
 	var i Absence
 	err := row.Scan(
 		&i.ID,
-		&i.IDKaryawan,
-		&i.NamaKaryawan,
-		&i.Tanggal,
-		&i.JamMasuk,
-		&i.JamJadwal,
-		&i.Terlambat,
-		&i.Cuaca,
-		&i.Latitude,
-		&i.Longitude,
-		&i.Hari,
+		&i.UserID,
+		&i.ClockIn,
+		&i.ClockOut,
+		&i.Location,
+		&i.Weather,
 		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const updateReport = `-- name: UpdateReport :one
+UPDATE reports
+SET
+    jenis_transaksi = $2,
+    kategori_transaksi = $3,
+    jumlah = $4,
+    keterangan = $5,
+    updated_at = NOW()
+WHERE id = $1
+RETURNING id, tanggal, jenis_transaksi, kategori_transaksi, jumlah, keterangan, created_at, updated_at
+`
+
+type UpdateReportParams struct {
+	ID                int32          `json:"id"`
+	JenisTransaksi    string         `json:"jenis_transaksi"`
+	KategoriTransaksi string         `json:"kategori_transaksi"`
+	Jumlah            pgtype.Numeric `json:"jumlah"`
+	Keterangan        pgtype.Text    `json:"keterangan"`
+}
+
+func (q *Queries) UpdateReport(ctx context.Context, arg UpdateReportParams) (Report, error) {
+	row := q.db.QueryRow(ctx, updateReport,
+		arg.ID,
+		arg.JenisTransaksi,
+		arg.KategoriTransaksi,
+		arg.Jumlah,
+		arg.Keterangan,
+	)
+	var i Report
+	err := row.Scan(
+		&i.ID,
+		&i.Tanggal,
+		&i.JenisTransaksi,
+		&i.KategoriTransaksi,
+		&i.Jumlah,
+		&i.Keterangan,
+		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
@@ -405,7 +540,7 @@ type UpdateStockParams struct {
 	ID             int32          `json:"id"`
 	NamaMenu       string         `json:"nama_menu"`
 	JumlahTerjual  int32          `json:"jumlah_terjual"`
-	KategoriMenu   string         `json:"kategori_menu"`
+	KategoriMenu   pgtype.Text    `json:"kategori_menu"`
 	HargaSatuan    pgtype.Numeric `json:"harga_satuan"`
 	TotalPenjualan pgtype.Numeric `json:"total_penjualan"`
 }
@@ -436,22 +571,22 @@ func (q *Queries) UpdateStock(ctx context.Context, arg UpdateStockParams) (Stock
 
 const updateUser = `-- name: UpdateUser :one
 UPDATE users
-SET 
+SET
     email = $2,
     password = $3,
-    role = $4,
-    name = $5,
-    updated_at = CURRENT_TIMESTAMP
+    name = $4,
+    role = $5,
+    updated_at = NOW()
 WHERE id = $1
-RETURNING id, email, password, role, name, created_at, updated_at
+RETURNING id, email, password, name, role, created_at, updated_at
 `
 
 type UpdateUserParams struct {
 	ID       int32  `json:"id"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
-	Role     string `json:"role"`
 	Name     string `json:"name"`
+	Role     string `json:"role"`
 }
 
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error) {
@@ -459,16 +594,16 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, e
 		arg.ID,
 		arg.Email,
 		arg.Password,
-		arg.Role,
 		arg.Name,
+		arg.Role,
 	)
 	var i User
 	err := row.Scan(
 		&i.ID,
 		&i.Email,
 		&i.Password,
-		&i.Role,
 		&i.Name,
+		&i.Role,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
