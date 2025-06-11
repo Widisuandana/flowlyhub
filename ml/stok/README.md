@@ -13,7 +13,7 @@ Sistem prediksi stok barang adalah modul machine learning yang digunakan untuk m
   - Data preprocessing dan normalisasi
   - Model persistence dan versioning
 
-### 4. Flow Data
+### Flow Data
 
 1. **Input Data**
 
